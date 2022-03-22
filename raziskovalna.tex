@@ -1,11 +1,12 @@
 \documentclass[12pt]{article}
 
+\usepackage[slovene]{babel}
 \usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{caption}
-\usepackage{hyperref}
+\usepackage[hidelinks,unicode]{hyperref}
 \usepackage{tikz}
-%\usepackage{tikz-timing}
+\usepackage{tikz-timing}
 \usepackage{amsmath}
 \usepackage[utf8]{inputenc}
 \renewcommand{\contentsname}{Kazalo}
@@ -15,10 +16,26 @@
 \begin{document}
 \pagenumbering{gobble}
 \linespread{1.25}
-\title{Raziskovanje mej RISCA}
-\author{Adrian Sebastian Šiška}
-\date{\today}
-\maketitle
+\begin{titlepage}
+  \begin{center}
+    \includegraphics[height=2cm]{slike/vegova.png}\\
+    \Huge
+    \vspace*{6cm}
+    Raziskovanje mej RISCa\\
+    \Large
+    (računalništvo in informatika)\\
+    Raziskovalna naloga\\
+  \end{center}
+  \vspace{8cm}
+  \begin{tabular}{rl}
+Avtor: & Adrian Sebastian Šiška\\
+Mentor: & Aleš Volčini
+    \end{tabular}
+    \vspace{1cm}
+    \begin{center}
+      Ljubljana, marec 2022
+    \end{center}
+\end{titlepage}
 
 \pagebreak
 \pagenumbering{arabic}
@@ -32,34 +49,40 @@
 \pagebreak
 
 \section{Zahvala}
-Zahvaljujem se vsem, ki so mi pomagali pri raziskovanju in pisanju.
-Še posebej se zahvaljujem mentorju Alešu Volčiniju za podporo in potrpežljivost.
-Pomagla sta mi tudi moja prijatelja Anton Luka Šijanec in Oliver Wagner pri iskanju mojih hroščev.
+%Zahvaljujem se vsem, ki so mi pomagali pri raziskovanju in pisanju.
+%Še posebej se zahvaljujem mentorju Alešu Volčiniju za podporo in potrpežljivost.
+%Pomagla sta mi tudi moja prijatelja Anton Luka Šijanec in Oliver Wagner pri iskanju mojih hroščev.
 
 \pagebreak
 
 \section{Povzetek}
-TODO
+%V tej raziskovalni nalogi sem hotel videti kako se RISC arhitekture obnašajo, ko jih porinemo do njihovih logičnih ekstremov.
+%Da sem ta
 \pagebreak
 
 %%ANG ONLY DEU
 %\section{Abstract}
 
 \section{Uvod}
+V raziskovalni nalogi sem si zadal kot cilj izdelavo minimalistične arhitekture.
 
 \subsection{Hipoteze}
+
 \begin{itemize}
-  \item Bolj kot je arhitektura simplistična, hitreje in bolj efektivno deluje.
-  \item Moja minimalna arhitektura je Turing complete.
-  \item Tudi brez predpostavke neskončnega rama je možno izvesti malo zapletenejšo komputacijo.
+  \item Bolj kot je arhitektura preprosta, hitreje in bolj učinkovito deluje.
+  \item Moja lahkotna arhitektura je Turing complete.
 \end{itemize}
 
 \section{Moja arhitektura}
-Kako daleč gre ta krivulja višje efektivnosti z manjšanjem kompleksnosti arhitekture?
-Da na to vprašanje odgpvprim, bom ustvaril zelo simplificirano arhitekturo.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.5\linewidth]{slike/arhitektura.gv.pdf}
+  \captionof{figure}{Shematika moje arhitekture}
+  \end{figure}
 \subsection{Kaj je URISC?}
 %URGENTLY religate interesting stuff to the compiler
-Urisc je kratica ki stoji za ultimate reduced instruction set computer oz.\ po slovensko računalnik z dokončno zmanjšano množico operacij.
+URISC je angleška kratica, ki pomeni \textit{ultimate reduced instruction set computer} oz.\ po slovensko \textit{računalnik z dokončno zmanjšano množico operacij}.
+Da arhitekturi lahko pripišemo ta naslov, ji je dovoljeno imeti samo 1 operacijo.
 
 Izkazalo se je da so RISC procesorji veliko boljši od procesorjev z kompleksno množico operacij, zato imajo tudi skoraj vsi telefoni danes arm procesorje.
 \subsection{Inštrukcije}
@@ -90,12 +113,12 @@ Meta bit sem uporabil, sa možnost branja iz programskega spomina, kar nam olaj�
 \subsection{Eno bitni registri}
 %vsi registri so eneaki, samo eni so bol enaki
 Glede na dolžino naslova in programskega števca lahko zračunamo število registrov, ki jih je potrebno rezervirati.
-\begin{figure}[h]
+\begin{center}
 \begin{displaymath}
   F(N,P)=2^{N}+P-1
 \end{displaymath}
 \text{N je dolžina binarnega naslova, P je programski števec}
-\end{figure}
+\end{center}
 Pomembenje dodatek +P-1, saj lahko z copy ukazom skopiramo nekaj preko glavnega ram območja.
 Posledica tega je nekaj skritih registrov, ki bodo vrjetno uporabljeni kot nastavitve sistema.
 
@@ -103,6 +126,17 @@ Posledica tega je nekaj skritih registrov, ki bodo vrjetno uporabljeni kot nasta
 Za standarden izhod in vhod, sem se odločil da bom implementiral svojo 4 žično komunikacijo.
 Ta lahko asinhrono bere informacije po bitih, ker ne morem garantirati dovolj rama, da bi lahko avomatsko pisal na konec nekega stacka, interrupti pa bi tudi dodali ogromno kompleksnosti, saj bi rabil dodati 16 nedosegljivih registrov za callback in novo inštrukcijo, ki bi skočila na ta naslov.
 %TODO add graph.
+\begin{center}
+  \begin{tabular}{ccc}
+    $A_{OUT}  $ & \texttiming{LHHHLLLLLL} & $B_{IN}$\\
+    $A_{OUT_A}$ & \texttiming{LLHZLLLLLL} & $B_{IN_A}$\\
+    $A_{IN}   $ & \texttiming{LLLLLHHHHL} & $B_{OUT}$\\
+    $A_{IN_A} $ & \texttiming{LLLLLLHZLL} & $B_{OUT_A}$
+  \end{tabular}
+
+  \text{primer pošiljanja enice od A do B in od B do A}
+  %\label{tim:foobar}
+\end{center}
 
 \section{Potek} %TODO
 \subsection{Zbirnik (assembler)}

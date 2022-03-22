@@ -1,0 +1,22 @@
+digraph baz {
+	//overlap=Prism;
+	//splines=True;
+	//label="1 bitna arhitektura";
+	//fontsize=36;
+	//registri [shape=record,label="{eno-bitni registri| {<f0>PC 16-bit|<io>0|<f1>1|<f2>0|0|0|<etc>...}}"];
+	// registri:f0 -> progmem ->
+	// nand -> registri:f1;
+	// registri:f2 -> nand;
+	// io -> registri:io -> io;
+	// progmem -> copy -> registri:f0;
+    KE[label="Kontrolna enota"];
+    LE[label="Logična enota",shape=box];
+    LE -> KE -> LE;
+    PGM[label="Programski pomnilnik",shape=box];
+    PGM -> KE;
+    ram[label="1-bitni registri",shape=box];
+    ram -> KE -> ram;
+    IO[label="I/O"];
+    IO -> ram -> IO;
+
+}
