@@ -3,20 +3,25 @@
 \usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{caption}
+\usepackage{hyperref}
+\usepackage{tikz}
+%\usepackage{tikz-timing}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
 \renewcommand{\contentsname}{Kazalo}
 \renewcommand\listfigurename{Kazalo slik}
 \renewcommand{\figurename}{Slika}
-\usepackage{hyperref}
-\usepackage[utf8]{inputenc}
 
 \begin{document}
+\pagenumbering{gobble}
 \linespread{1.25}
-\title{1 bitna arhitektura}
+\title{Raziskovanje mej RISCA}
 \author{Adrian Sebastian Šiška}
 \date{\today}
 \maketitle
 
 \pagebreak
+\pagenumbering{arabic}
 
 \tableofcontents
 
@@ -26,15 +31,123 @@
 
 \pagebreak
 
-\section{Povzetek}
+\section{Zahvala}
+Zahvaljujem se vsem, ki so mi pomagali pri raziskovanju in pisanju.
+Še posebej se zahvaljujem mentorju Alešu Volčiniju za podporo in potrpežljivost.
+Pomagla sta mi tudi moja prijatelja Anton Luka Šijanec in Oliver Wagner pri iskanju mojih hroščev.
 
 \pagebreak
 
+\section{Povzetek}
+TODO
+\pagebreak
+
+%%ANG ONLY DEU
+%\section{Abstract}
+
+\section{Uvod}
+
+\subsection{Hipoteze}
+\begin{itemize}
+  \item Bolj kot je arhitektura simplistična, hitreje in bolj efektivno deluje.
+  \item Moja minimalna arhitektura je Turing complete.
+  \item Tudi brez predpostavke neskončnega rama je možno izvesti malo zapletenejšo komputacijo.
+\end{itemize}
+
+\section{Moja arhitektura}
+Kako daleč gre ta krivulja višje efektivnosti z manjšanjem kompleksnosti arhitekture?
+Da na to vprašanje odgpvprim, bom ustvaril zelo simplificirano arhitekturo.
+\subsection{Kaj je URISC?}
+%URGENTLY religate interesting stuff to the compiler
+Urisc je kratica ki stoji za ultimate reduced instruction set computer oz.\ po slovensko računalnik z dokončno zmanjšano množico operacij.
+
+Izkazalo se je da so RISC procesorji veliko boljši od procesorjev z kompleksno množico operacij, zato imajo tudi skoraj vsi telefoni danes arm procesorje.
+\subsection{Inštrukcije}
+vsak ukaz dobi kot vhod 2 naslova (7 bitna na moji implementaciji) in 1 meta bit.
+\subsubsection{Nand ali xali}
+Kot prvo inštrukcijo sem najprej probal uporabiti xali, vendar sem hitro ugotovil, da se iz samo xora ne da rekonstuirati vseh ostalih vrat.
+Zato sem se odločil še za naj pogosteje izbrana univerzalna vrata nand.
+Par vrat sem kombiniral v 1 inštrukcijo, kjer meta bit izbira med njima.
+V interesu krajših inštrukcij, sem spustil 3.\ naslov, na katerega bi se rezultat shranil. Na mesto tega, se vedno shrani na 2.\ naslov.
+
+\begin{displaymath}
+  f(A,B,M) =
+  \begin{cases}
+    Nand(*A\footnote{*N pomeni priklic iz rama z naslovom N}, *B) \rightarrow *B & M=0\\
+    Xor(*A, *B) \rightarrow *B & M=1
+  \end{cases}
+\end{displaymath}
+Oz.\ zapisano v logični notaciji.
+\begin{displaymath}
+  \overline{(AB)}(A+B+\overline{C})
+\end{displaymath}
+
+\subsubsection{16 bitno kopiranje}
+To inštrukcijo sem izbral zaradi izredno lažjih skokov, ki bi jih omogočala.
+Programski števec zavzame prvij 16 bitov, ta inštrukcija pa nam omogoča da v enem ciklu na njega skopiramo vseh 16 bitov, ki so potrebni za skok.
+Meta bit sem uporabil, sa možnost branja iz programskega spomina, kar nam olajša pisanje konstant, in hitre skoke na pogoste naslove.
+
+\subsection{Eno bitni registri}
+%vsi registri so eneaki, samo eni so bol enaki
+Glede na dolžino naslova in programskega števca lahko zračunamo število registrov, ki jih je potrebno rezervirati.
+\begin{figure}[h]
+\begin{displaymath}
+  F(N,P)=2^{N}+P-1
+\end{displaymath}
+\text{N je dolžina binarnega naslova, P je programski števec}
+\end{figure}
+Pomembenje dodatek +P-1, saj lahko z copy ukazom skopiramo nekaj preko glavnega ram območja.
+Posledica tega je nekaj skritih registrov, ki bodo vrjetno uporabljeni kot nastavitve sistema.
+
+\subsection{Komunikacija z resničnim svetom}
+Za standarden izhod in vhod, sem se odločil da bom implementiral svojo 4 žično komunikacijo.
+Ta lahko asinhrono bere informacije po bitih, ker ne morem garantirati dovolj rama, da bi lahko avomatsko pisal na konec nekega stacka, interrupti pa bi tudi dodali ogromno kompleksnosti, saj bi rabil dodati 16 nedosegljivih registrov za callback in novo inštrukcijo, ki bi skočila na ta naslov.
+%TODO add graph.
+
+\section{Potek} %TODO
+\subsection{Zbirnik (assembler)}
+Ker sem pre len, da bi na roke pisal programe v binarni obliki, ki se ne poravna z šesnajstiškimi ciframi, sem se odločil za spis zbirnika za mojo arhitekturo.
+\subsubsection{Preprocessor}
+Preprocessor skrbi za dodajanje večih datotek skupaj in dešifriranje macrotov ter definicij.
+Nasm je precej popularen assembler, ki mi dovoli, da zlahkoto pokljičem le njegov predprocesor.
+Bolj primeren kot c-jev predprocesor je, ker zaradi formata zbornika, ne smemo zanemariti novih vrstic.
+\subsubsection{Dissasembler}
+Seveda je bilo nekaj problemov na katere sem naletel med potjo do assemblerja.
+Še sedaj občasno odprem dissasembler, da vidim če generiram pravilen program.
+Kot najhitrejši način reševanja problemov v assembleru sem se odločil, da bom napisal še majhen program, ki bo izpisal ukaze in njihove argumente.
+%TODO oliver pomagal
+
+\subsubsection{Ugibanje ukazov}
+Na moje veliko presenečenje na internetu še nisem našel vseh logičnih vrat še nisem našel razstavljenih na nand in xor ukaze z assignmentom.
+V namen avtomatiziranja postopka iskanja kombinacije nandov, ki bi recimo sešteli 2 enobitni številki, sem spisal program ki proba najti vsa možna dejanja na n celicah.
+za kater koli n, ki je večji od 2, je to postal ne zdržljivo dolg proces (predvidevam da bi trajalo nekaj tednov),  zato sem napisal tudi več nizno implementacijo v C-ju.
+
+\section{Virtualna implementacija}
+Da zares lahko pokažem delovanje naprave, moram nekako prikazati kako deluje, in to na najlažji način dosežem. %TODO
+\subsection{cellular automata}
+\section{Zaključek}
+\subsection{Hipoteze}
+\begin{itemize}
+  \item Bolj kot je arhitektura simplistična, hitreje in bolj efektivno deluje.
+
+        Ni tako preproste povezave, kot sem si jo na začetku zamislil, vendar drži, da bo manj tranzistorjev hitreje reagiralo in porabilo manj energije.
+
+  \item Moja minimalna arhitektura je Turing complete.
+  \item Tudi brez predpostavke neskončnega rama je možno izvesti malo zapletenejšo komputacijo.
+
+        To dvoje očitno drži saj lahko simuliram celice, s pravili na način, da so že same po sebi turing complete.
+\end{itemize}
+
+\section{Nadaljne raziskave}
+Zdi se mi pomembno omeniti, da lahko med tem ko ohranimo preprostost dizajna moje eno-bitne arhitekture, močno razširimo njeno moč, s tem da jo postavimo kot generator programskega spomina sebe.
+
+\pagebreak
 \section{Viri in literatura}
 
+\pagebreak
 \section{Viri slik}
-\begin{enumerate}
-	\item Slika 1: \textit{Lom svetlobe med dvema območjema}. Dostopno prek: \url{https://si.openprof.com/ge/images/6/lom_svetlobe_2_2.jpg} [6.2.2019]
-\end{enumerate}
+%\begin{enumerate}
+%  \item Slika 1:
+%\end{enumerate}
 
 \end{document}
