@@ -1,0 +1,6 @@
+[submodule "1bitvm"]
+	path = 1bitvm
+	url = git@github.com:adimineman/1bitvm.git
+[submodule "gate-bf"]
+	path = gate-bf
+	url = https://github.com/adimineman/gate-bf

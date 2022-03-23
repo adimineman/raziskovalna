@@ -12,6 +12,7 @@
 \renewcommand{\contentsname}{Kazalo}
 \renewcommand\listfigurename{Kazalo slik}
 \renewcommand{\figurename}{Slika}
+\usepackage{listingsutf8}
 
 \begin{document}
 \pagenumbering{gobble}
@@ -48,17 +49,17 @@
 
 \pagebreak
 
-% \section{Zahvala}
-%% TODO
-%% Zahvaljujem se vsem, ki so mi pomagali pri raziskovanju in pisanju.
-%% Še posebej se zahvaljujem mentorju Alešu Volčiniju za podporo in potrpežljivost.
-%% Pomagla sta mi tudi moja prijatelja Anton Luka Šijanec in Oliver Wagner pri iskanju mojih hroščev.
-%
-% \pagebreak
-%
-% \sectio
-%% Da sem ta
-% \pagebreak
+\section{Zahvala}
+
+Zahvaljujem se vsem, ki so mi pomagali pri raziskovanju in pisanju.
+Še posebej se zahvaljujem mentorju Alešu Volčiniju za podporo in potrpežljivost.
+Pomagla sta mi tudi moja prijatelja Anton Luka Šijanec in Oliver Wagner pri iskanju mojih hroščev.
+
+\pagebreak
+
+\section{Povzetek}
+% Da sem ta
+\pagebreak
 
 %% ANG ONLY DEU
 % \section{Abstract}
@@ -265,15 +266,47 @@ Seveda ne morem implementirati neskončno dolgega enodimenzionalnega traka, na k
 \section{Nadaljne raziskave}
 Zdi se mi pomembno omeniti, da lahko med tem ko ohranimo preprostost dizajna moje eno-bitne arhitekture, močno razširimo njeno moč, s tem da jo postavimo kot generator programskega spomina sebe.
 
+\section{Priloge}
+
+\lstset{
+  basicstyle=\footnotesize,
+  breaklines=true,
+  frame=single,
+  stepnumber=5,
+}
+\lstdefinestyle{py}{
+  language=Python,
+}
+
+\lstdefinestyle{asm}{
+  language=[x86masm]Assembler,
+  morekeywords={copy, nand, xor, x, a, c},
+}
+\lstdefinestyle{cst}{
+  language=C,
+}
+
+\lstinputlisting[style=py,caption=asm.py]{1bitvm/asm.py}
+\lstinputlisting[style=py,caption=disasm.py]{1bitvm/disasm.py}
+\lstinputlisting[style=asm,caption=example.asm]{1bitvm/example.asm}
+\lstinputlisting[style=asm,caption=example2.asm]{1bitvm/example2.asm}
+\lstinputlisting[style=asm,caption=example3.asm]{1bitvm/example3.asm}
+\lstinputlisting[style=asm,caption=std.asm]{1bitvm/std.asm}
+\lstinputlisting[style=py,caption=main.py]{1bitvm/main.py}
+%\lstinputlisting[caption=Primer razporeditve pomnilnika]{1bitvm/mem}
+\lstinputlisting[style=py,caption=oneb\_vm.py]{1bitvm/main.py}
+\lstinputlisting[style=cst,caption=program za poskušanje vseh logičnih vrat]{gate-bf/main.c}
+
+
+
+
 \pagebreak
 \section{Viri in literatura}
 $[1]$ dosegljivo: \url{https://uops.info/} [23.3.2022]\\
 $[2]$ dosegljivo: \url{https://cs.stanford.edu/people/eroberts/courses/soco/projects/risc/risccisc/} [23.3.2022]\\
 $[3]$ dosegljivo: \url{https://wpmedia.wolfram.com/uploads/sites/13/2018/02/15-1-1.pdf} [23.3.2022]\\
-$[4]$ Modrost mojega prijatelja Oliverja Wagnerja. dosegljivo: \url{https://github.com/Oliwerix}\\
+$[4]$ Modrost mojega prijatelja Oliverja Wagnerja.\ dosegljivo: \url{https://github.com/Oliwerix}\\
 
 % \pagebreak
 % \section{Viri slik}
 \end{document}
-
-\section{Priloge}
