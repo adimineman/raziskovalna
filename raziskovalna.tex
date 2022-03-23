@@ -28,13 +28,13 @@
   \end{center}
   \vspace{8cm}
   \begin{tabular}{rl}
-Avtor: & Adrian Sebastian Šiška\\
-Mentor: & Aleš Volčini
-    \end{tabular}
-    \vspace{1cm}
-    \begin{center}
-      Ljubljana, marec 2022
-    \end{center}
+    Avtor: & Adrian Sebastian Šiška\\
+    Mentor: & Aleš Volčini
+  \end{tabular}
+  \vspace{1cm}
+  \begin{center}
+    Ljubljana, marec 2022
+  \end{center}
 \end{titlepage}
 
 \pagebreak
@@ -48,50 +48,48 @@ Mentor: & Aleš Volčini
 
 \pagebreak
 
-%\section{Zahvala}
-%%TODO
-%%Zahvaljujem se vsem, ki so mi pomagali pri raziskovanju in pisanju.
-%%Še posebej se zahvaljujem mentorju Alešu Volčiniju za podporo in potrpežljivost.
-%%Pomagla sta mi tudi moja prijatelja Anton Luka Šijanec in Oliver Wagner pri iskanju mojih hroščev.
+% \section{Zahvala}
+%% TODO
+%% Zahvaljujem se vsem, ki so mi pomagali pri raziskovanju in pisanju.
+%% Še posebej se zahvaljujem mentorju Alešu Volčiniju za podporo in potrpežljivost.
+%% Pomagla sta mi tudi moja prijatelja Anton Luka Šijanec in Oliver Wagner pri iskanju mojih hroščev.
 %
-%\pagebreak
+% \pagebreak
 %
-%\section{Povzetek}
-%%TODO
-%%V tej raziskovalni nalogi sem hotel videti kako se RISC arhitekture obnašajo, ko jih porinemo do njihovih logičnih ekstremov.
-%%Da sem ta
-%\pagebreak
+% \sectio
+%% Da sem ta
+% \pagebreak
 
-%%ANG ONLY DEU
-%\section{Abstract}
+%% ANG ONLY DEU
+% \section{Abstract}
 
 \section{Uvod}
-%TODO
+% TODO
 V raziskovalni nalogi sem si zadal kot cilj izdelavo minimalistične arhitekture.
 
-\subsection{Hipoteze}
-V tej nalogi bom preveril resničnost sledečih hipotez:
+\subsection{Hipoteza}
+V tej nalogi bom preveril resničnost sledeče hipoteze:
 \begin{itemize}
-  \item Bolj kot je arhitektura preprosta, hitreje in bolj učinkovito deluje.
-  \item Moja lahkotna arhitektura je Turing complete.
+  \item Moja lahkotna arhitektura imenovana PUHI je Turing complete.
 \end{itemize}
 
 \section{Moja arhitektura}
 \begin{figure}[h]
   \centering
   \includegraphics[width=.5\linewidth]{slike/arhitektura.gv.pdf}
-  \captionof{figure}{Shematika moje arhitekture}
-  \end{figure}
-
+  \captionof{figure}{Shematika PUHIja}
+\end{figure}
+Imenuje se \textit{Praktična URISC hardware implementacija} oz.\ kratica PUHI.\@
 \subsection{Kaj je URISC?}
-%URGENTLY religate interesting stuff to the compiler
-URISC je angleška kratica, ki pomeni \textit{ultimate reduced instruction set computer}, kar bi lahko v slovenščino prevedli kot \textit{računalnik z dokončno zmanjšano množico operacij}.
+% URGENTLY religate interesting stuff to the compiler
+Kratica URISC pomeni \textit{ultimate reduced instruction set computer}, kar bi lahko v slovenščino prevedli kot \textit{računalnik z dokončno zmanjšano množico operacij}.
 RISC arhitekture so v praksi, odkar pomnilnik ni več drag, boljše od CISC arhitektur, to nam dokazujejo moderni pametni telefoni, saj skoraj vsi delujejo na arm čipih.
 To nam dokaže tudi najpopularnejši ustvarjalec CISC procesorjev, Intel, saj so dandanes njihovi procesorji interno zgrajeni iz tolmača in manjšega RISC procesorja.
 Da arhitkturo označimo kot URISC, pa rabimo iti še en korak dajle, in sicer, se znebiti vsek ukazov razen enega.
 Zanimiva posedica tega je dejstvo, da lahko ko pišemo strojno kodo popolnoma spustimo polje z instructijo, ostanejo le še njeni argumenti.
 
-Jaz sem se raje odločil za 2 instrukciji, ker se njuni rabi ne prekrivata zelo dosti, saj med drugim tudo operirata na različnih magnitudah količine podatkov, je posledica te adicije le lažje pisanje programov.
+V virih najdemo primere, ukazov, ki so sami posebi turing complete, npr.\ x86 mov ukaz.
+Jaz sem se raje odločil za 2 instrukciji, ker se njuni rabi ne prekrivata zelo dosti, saj med drugim tudo operirata na različnih magnitudah količine podatkov, je posledica tega dodatka le lažje pisanje programov.
 Odločil sem se, da mi je težavnost pisanja programov brez prevajalnika pomembna, ker bi sicer ta naloga vzela še dosti več časa, če bi rabil napisati še prevajalnik.
 
 \subsection{Instrukcije}
@@ -101,12 +99,12 @@ Za pridobivanje bitnega zapisa preprosto napišemo 1.\ naslov, 2.\ naslov, cifro
 Meta bit je nastal zaradi poravnave dolzine ukaza na 2 byta, kar je naredilo pisanje zbirnika in razbirnika nekoliko lažje.
 Obe instrukciji se obnasata po principu, da vzameta podatke iz 1.\ naslova in rezultat shranita na 2.\ naslov.
 
-\subsubsection{Instrukcija ``16c''}
+\subsubsection{Instrukcija ``c16''}
 To je 1.\ instrukcija oznacena z 0 v binarni obliki.
 Njena notacija izhaja iz daljšega imena \textit{copy 16 bits}
 Deluje tako, da od njenega 1.\ podanega naslova in še zaporedno nasledjih 15 registrov prekopira v začasen pomnilnik, potem pa jih prekopira na 2.\ naslov in na zaporednih 15 registrov za njim.
 Odločitev da bo to 1.\ instrukcija izhaja iz tega, da so same ničle v programu interpretirane kot ukaz brez posledic, kar je uporabno predvsem, ko rabim kaj poravnati na naslov, ki je par mest nižji.
-Na začetku je bila zasnovana kot skoraj jump instrukcija, saj z nandom ni mogoče vseh bitov v programskem števcu hkrati spremeniti na željeno vrednost.
+Na začetku je bila zasnovana kot skoraj jump instrukcija, saj z NAND-om ni mogoče vseh bitov v programskem števcu hkrati spremeniti na željeno vrednost.
 Posledica spremembe enega pa po enega bita, bi bil skok takoj po 1.\ spremembi saj kontrolna enota vedno preveri števec pred nalaganjem nove instrukcije.
 
 Ko sem kasneje dodal še meta bit, sem se odločil da se bo kopiranje zgodilo iz programskega spomina.
@@ -119,9 +117,12 @@ Kaj se zgodi če nekaj skopiramo na zadnji register?
 Zdi se mi da je najbolj uporaben odgovor, da rečem da so za ``zadnjim registrom'' še skriti registri.
 Do njihove vsebine se da dostopati le z c16 ukazom, kar se mi ne zdi problem, saj menim, da bo ta konfiguracija redko spremenjena čez potek programa.
 
+Torej se ukaz \verb|c16 0x22, 0x44, 0| prevede v \verb|0100010 1000100 0 0|, kar bi lahko predstavili z Cejevsko vrtico kode\\
+\verb|int *a=0x22; int* b=0x44; *b=*a;*(b+1)=*(a+1)|\ldots \verb|*(b+15)=*(a+15)|.
+
 \subsubsection{Instrukcija ``Nox''}
 To je 2.\ instrukcija oznacena z 1 v binarni obliki.
-Ime izhaja iz njenega kratkega opisa: \textit{Nanad or Xor}.
+Ime izhaja iz njenega kratkega opisa: \textit{Nanad or XOR}.
 Najprej sem probal uporabiti le XOR, kot edini ukaz za minpulacijo bitov, vendar sem hitro ugotovil, da se iz samo XORa ne da rekonstuirati vseh ostalih logičnih vrat.
 Zato sem se odločil še za naj pogosteje izbrana univerzalna vrata NAND.\@
 
@@ -130,7 +131,7 @@ Programski števec bi lahko bil viden samo c16 ukazu, vendar bi to preprečilo r
 Pogojni relativni skoki so nadaljevanje tega. Ker vem kje se nahaja trenuten ukaz, lahko vem v kakšnem stanju je nek bit v programskem števcu.
 S kombiniranjem enice v programskem števcu in nekega podatka v ramu lahko skočim nazaj, samo če je tudi podatek v ramu enica.
 Pogojen skok naprej ni izvedljiv na tak način. Saj bo na enobitnem mesu, če ga želimo povečati morala biti ničla.
-Nand pravi, da če je kateri koli izmed argumentov 0, da bo rezultat vedno 1, kar pomeni da naš \textit{pogoj} ni bil upoštevan.
+NAND pravi, da če je kateri koli izmed argumentov 0, da bo rezultat vedno 1, kar pomeni da naš \textit{pogoj} ni bil upoštevan.
 
 Zaradi dragih skokov in lahke ponastavitve celice na 0, sem se odločil da dodam še XOR.\@
 Par vrat sem kombiniral v 1 instrukcijo, kjer meta bit izbira med njima.
@@ -138,8 +139,8 @@ Par vrat sem kombiniral v 1 instrukcijo, kjer meta bit izbira med njima.
 \begin{displaymath}
   f(A,B,M) =
   \begin{cases}
-    Nand(*A\footnote{*N pomeni priklic iz rama z naslovom N}, *B) \rightarrow *B & M=0\\
-    Xor(*A, *B) \rightarrow *B & M=1
+    NAND(*A\footnote{*N pomeni priklic iz rama z naslovom N}, *B) \rightarrow *B & M=0\\
+    XOR(*A, *B) \rightarrow *B & M=1
   \end{cases}
 \end{displaymath}
 Oz.\ zapisano v logični notaciji.
@@ -147,23 +148,29 @@ Oz.\ zapisano v logični notaciji.
   \overline{(AB)}(A+B+\overline{C})
 \end{displaymath}
 
+Torej se ukaz \verb|Nox 0x15, 0x53, 0| prevede v \verb|0010101 1010011 1 0|, kar bi lahko predstavili z Cejevsko vrtico kode \verb|int *a=0x15;int *b=0x53;*b=NAND(*a,*b)|.
+
 \subsection{Enobitni registri}
-%vsi registri so eneaki, samo eni so bol enaki
+% vsi registri so eneaki, samo eni so bol enaki
 Kot ram sem si zamislil \textit{trak} enobitnih registrov.
 Zaradi preprostosti, je programski števec preslikan čez prvih 16 registrov, da lahko tudi ukaz Nox z njem operira.
 Ves I/O je tudi preslikan na registre, in sicer na prve štirji za števcem.
 Število vseh registrov je funkcija dolžine naslova rama in velikosti programskega števca.
 Velikost programskega števca je potrebno upoštevati, saj je glede na njega definiran ukaz za kopiranje, in polsedica ukaza za kopirajne so skriti registri.
+Za računanje dolžine traka registrov sem pripravil preprosto formulo.
+$F(N,P)$, v mojem primeru $F(7,16)$, zračuna število registrov, ki jih imam na razpolago, pri danem N in P.
 \begin{center}
-\begin{displaymath}
-  F(N,P)=2^{N}+P-1
-\end{displaymath}
-\text{N je dolžina binarnega naslova, P je programski števec}
+  \begin{displaymath}
+    F(N,P)=2^{N}+P-1
+  \end{displaymath}
+  $F(N,P)$ je število registrov, $N$ je dolžina binarnega naslova, $P$ je programski števec
 \end{center}
 
-\subsection{Komunikacija z resničnim svetom}
-Za standarden izhod in vhod, sem se odločil da bom implementiral svojo 4 žično komunikacijo.
-Ta lahko asinhrono bere informacije po bitih, ker ne morem garantirati dovolj rama, da bi lahko avomatsko pisal na konec nekega stacka, interrupti pa bi tudi dodali ogromno kompleksnosti, saj bi rabil dodati 16 nedosegljivih registrov za callback in novo instrukcijo, ki bi skočila na ta naslov.
+\subsection{Komunikacija z zunanjim svetom}
+Za izvedbo vhodno-izhodnih operacij, sem se odločil da bom implementiral svojo 4 žično komunikacijo.
+Ta lahko asinhrono bere informacije po bitih.
+Asinhronost je pomembna lastnost, saj nimam nikjer prostora da bi dodal začasen pomnilnik, ki bi shranjeval podatke, preden bi procesor imel čas, da se začne ukvarjati z njimi.
+Interrupt tudi ni dobro nadomestilo asinhronosti, saj bi dodal ogromno kompleksnosti, kot npr.\ najmanj 16 dodatnih registrov, instrukcijo za branje z njih in možnost spreminjanja registrov, ki ni posledica nekega ukaza.
 Lepa lastnost štirižičnega protokola je tudi, da se dve napravi z lahkoto skupaj poveže, saj moramo le izhode iz ene priklopti v vhode druge.
 \begin{center}
   \begin{tabular}{ccc}
@@ -171,10 +178,9 @@ Lepa lastnost štirižičnega protokola je tudi, da se dve napravi z lahkoto sku
     $A_{OUT_A}$ & \texttiming{LLHZLLLLLL} & $B_{IN_A}$\\
     $A_{IN}   $ & \texttiming{LLLLLHHHHL} & $B_{OUT}$\\
     $A_{IN_A} $ & \texttiming{LLLLLLHZLL} & $B_{OUT_A}$
-  \end{tabular}
+  \end{tabular}\footnote{modra črta na sredini prikaže stanje, kjer ena naprava drži signal pri logični enici, druga naprava pa ga proba nastaviti na ničlo}
 
-  \text{primer pošiljanja enice od A do B in od B do A}
-  %\label{tim:foobar}
+  \text{Primer pošiljanja enice od A do B in od B do A}
 \end{center}
 Za pošiljanje informacij najprej počakaš da je $OUT_{A}$ dovoljen, torej 0.
 Nato lahko pišemo kar hočemo v $OUT$, dokler ne želimo vrednosti \textit{oddati}, kar naredimo s tem da napišemo enico na $OUT_{A}$.
@@ -187,48 +193,73 @@ To druga naprava zazna in čimprej spusti $IN_{A}$ na 0.
 
 
 \section{Izdelava} %TODO
-Za uspešno izdelavo sem se odločil da bom potreboval okolje, kjer lahko testiram ideje o spremembah arhitekture in mesto za testiranje mojih programov.
-Zato sem se lotil pisanja virtualnega stroja, ker pa je teško vedeti kdaj ti je uspelo, sem začel delati na assemblerju.
-Seveda je izdelava tega tudi težka, zato sem razvil še dissasembler, da preverim delovanje asemblerja.
-Izdelava le tega je bila nekoliko lažja,  vendar sem še zmeraj čez par dni našel večjo napako pri de šifriranju ukazov.
+Za uspešno izdelavo sem se odločil da bom potreboval okolje, kjer lahko testiram spremembae arhitekture in mojie programe.
+Zato sem se lotil pisanja virtualnega stroja, ker pa je teško vedeti če zares deluje, sem začel delo na zbirniku, da ne bi več rabil na roke pisati enk in ničel.
+Seveda je izdelava zbirnika tudi težka, zato sem razvil še razbirnik, da preverim delovanjei zbirnika.
+Izdelava le tega je bila nekoliko lažja, kljub temu sem čez nekaj dni našel večjo napako pri de šifriranju ukazov.
 
 \subsection{Zbirnik (assembler)}
-Assembler se sprehodi čez celotno datoteko in vsako vrsico klasificira, kot eno izmed 4 možnosti.
-1. Komentar,
-2. Surovi binarni podatki,
-3. Premik v programu,
-4. Instrukcija v procesorju;,
-5. Naslov.
-Še preden pa se moj program sprehodi čez input, ga podam predprocesorju.
-\subsubsection{Preprocessor}
-Preprocessor skrbi za dodajanje večih datotek skupaj in dešifriranje macrotov ter definicij.
-Nasm je precej popularen assembler, ki mi dovoli, da zlahkoto pokljičem le njegov predprocesor.
-Bolj primeren kot c-jev predprocesor je, ker zaradi formata zbornika, ne smemo zanemariti novih vrstic.
-\subsubsection{Dissasembler}
-Seveda je bilo nekaj problemov na katere sem naletel med potjo do assemblerja.
-Še sedaj občasno odprem dissasembler, da vidim če generiram pravilen program.
-Kot najhitrejši način reševanja problemov v assembleru sem se odločil, da bom napisal še majhen program, ki bo izpisal ukaze in njihove argumente.
-%TODO oliver pomagal
-
-\subsubsection{Ugibanje ukazov}
-Na moje veliko presenečenje na internetu še nisem našel vseh logičnih vrat še nisem našel razstavljenih na nand in xor ukaze z assignmentom.
-V namen avtomatiziranja postopka iskanja kombinacije nandov, ki bi recimo sešteli 2 enobitni številki, sem spisal program ki proba najti vsa možna dejanja na n celicah.
-za kater koli n, ki je večji od 2, je to postal ne zdržljivo dolg proces (predvidevam da bi trajalo nekaj tednov),  zato sem napisal tudi več nizno implementacijo v C-ju.
-
-%\section{Virtualna implementacija}
-%$Da zares lahko pokažem delovanje naprave, moram nekako prikazati kako deluje, in to na najlažji način dosežem. %TODO
-%\subsection{cellular automata}
-\section{Zaključek}
-\subsection{Hipoteze}
+Najprej celotno datoteko podamo NASM-ovem prepreprocesorju.
+Potem za vsako vrstico v datoteki:
 \begin{itemize}
-  \item Bolj kot je arhitektura simplistična, hitreje in bolj efektivno deluje.
+  \item preiščemo vrstico za par ``$<py>$'' simbolov, ki tvorita python blok.
+  Vsaka uporabnikova konstanta je tako ali tako interpretirana skozi oči pythona, vendar nastane problem, ko probamo interpretirati pythonov izraz ki vsebuje vejice.
+  Vejice so namreč ločilo med polji zato moj preprost razpoznavalnik nepravilno nareže en pythonov izraz na več majhnih delov, ki sami po sebi nehajo biti veljavni.
+  \item Ko končamo in vse py bloke zamenjamo z njigovimi zračunanimi vrednostmi v vrstici.
+  \item Nato klasificiramo vsako vrsico v eno izmed 5 možnih vrst.
+  \begin{itemize}
+    \item Komentar ali prazna vrstica, ki jih lahko varno spustimo,
+    \item Surovi binarni podatki, ki jih direktno zapišemo v datoteko,
+    \item Premik v programu, premaknemo mesto pisanja in nadaljujemo,
+    \item Instrukcija v procesorju, ki jo dešifriramo, izračunamo njene argumente in zapišemo,
+    \item Naslov, katerega pozicijo si zapomnimo, da bomo kasneje lahko omenjali predmet pred katerim stoji.
+  \end{itemize}
+\end{itemize}
 
-        Ni tako preproste povezave, kot sem si jo na začetku zamislil, vendar drži, da bo manj tranzistorjev hitreje reagiralo in porabilo manj energije.
+\subsubsection{Preprocessor}
+Preprocessor skrbi za dodajanje večih datotek skupaj in dešifriranje makrotov ter definicij.
+Nasm je precej popularen assembler, ki mi dovoli, da zlahkoto pokličem le njegov preprocesor.
+Bolj primeren je kot c-jev preprocesor, ker zaradi formata zbornika, ne smemo zanemariti novih vrstic.
+\subsubsection{Razbirnik (Dissasembler)}
+\begin{center}
+  \includegraphics[width=.3\linewidth]{slike/razbirnik.png}
+  \captionof{figure}{Primer uporabe razbirnika}
+\end{center}
+Seveda je bilo nekaj problemov na katere sem naletel med potjo do zbirnika.
+Zato sem z malo pomoči Oliverja napisal še manjši program, ki se sprehodi čez datoteko in jo interpretira v instrukcije in njene argumente.
+Izpiše nam naslov na katerem se ukaz nahaja, ukaz sam, meta bit in še šestnajstiški prikaz tega ukaza, saj ne loči med podatki in ukazi.
 
-  \item Moja minimalna arhitektura je Turing complete.
-  \item Tudi brez predpostavke neskončnega rama je možno izvesti malo zapletenejšo komputacijo.
+\subsubsection{Iskanje ukazov s surovo silo}
+Pisanje makrotov, kot so add je človeku zelo težko opravilo.
+Seveda se da najti kombinacijo NAND-ov in xorov, ki bi mi vrnila seštevek dveh cifer, vendar ne morem biti prepričan, da je to najhitrejši algoritem za to.
+Zato sem napisal program, ki to piše namesto mene.
+Ideja je v tem, da za vsak možen vhod v N celic poiskusimo vse možne ukaze, in gledamo, kdaj dobimo nov rezultat.
+Ko dobimo kaj novega, lahko preprosto ponovimo postopek.
+Iz tega lahko generiramo tabelo rezultatov glede na vse možne vhode.
 
-        To dvoje očitno drži saj lahko simuliram celice, s pravili na način, da so že same po sebi turing complete.
+Prva implementacija tega programa je bila napisana v pythonu in bi po mojih ocenah trajalo nekaj tednov, da bi dobil popolno tabelo vseh možnih rezultatov.
+Zato sem prepisal cel program v C, in z uporabo večih niti, skrajšal čas iskanja na 3 sekunde.
+
+\section{Virtualna implementacija}
+Da zares lahko pokažem delovanje naprave, moram nekako prikazati kako deluje, in to na najlažji način dosežem z implementacijo v virtualnem okolju.
+Zato sem se lotil pisanja virtualne naprave v pitonu.
+Svoji 2 izhodni žici ima povezani na standardni izhod, svoji 2 vhodni žici pa na standardni vhod.
+Tako lahko preko terminala komuniciramo z virtualno napravo.
+To lahko najlažje vidimo v 1.\ primeru, kjer naprava izpiše ``Živjo'', ali v 2.\ primeru, kjer nam naprava vrne nazaj vsak bit, ki ga prejme.
+\subsection{cellular automata}
+\begin{center}
+  \includegraphics[width=.3\linewidth]{slike/pravilo110.png}
+  \captionof{figure}{Prikaz delovanja celičnega avtomata na PUHI arhitekturi.}
+\end{center}
+Kot metodo dokazovanja, da je PUHI turing complete, sem izbral emulacijo drugega turing complete sistema.
+Eden izmed najbolj preprostih, čeprav še vedno dovolj kompleksnih, da je univerzalen, je Celični avtomat z pravilom 110.
+Seveda ne morem implementirati neskončno dolgega enodimenzionalnega traka, na katerem bi simuliral izvajanje tega pravila, lahko pa pokažem, da bi se to dalo implementirati, če bi moja naprava imela neskončno rama.
+
+\section{Zaključek}
+\subsection{Hipoteza}
+\begin{itemize}
+  \item Moja lahkotna arhitektura imenovana PUHI je Turing complete.
+  Hipoteza potrjena, saj lahko popolnoma emulira sistem, za katerega je že bilo dokazano, da je turing complete
 \end{itemize}
 
 \section{Nadaljne raziskave}
@@ -239,7 +270,10 @@ Zdi se mi pomembno omeniti, da lahko med tem ko ohranimo preprostost dizajna moj
 $[1]$ dosegljivo: \url{https://uops.info/} [23.3.2022]\\
 $[2]$ dosegljivo: \url{https://cs.stanford.edu/people/eroberts/courses/soco/projects/risc/risccisc/} [23.3.2022]\\
 $[3]$ dosegljivo: \url{https://wpmedia.wolfram.com/uploads/sites/13/2018/02/15-1-1.pdf} [23.3.2022]\\
+$[4]$ Modrost mojega prijatelja Oliverja Wagnerja. dosegljivo: \url{https://github.com/Oliwerix}\\
 
-%\pagebreak
-%\section{Viri slik}
+% \pagebreak
+% \section{Viri slik}
 \end{document}
+
+\section{Priloge}
