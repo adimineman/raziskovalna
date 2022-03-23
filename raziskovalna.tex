@@ -49,6 +49,7 @@ Mentor: & Aleš Volčini
 \pagebreak
 
 \section{Zahvala}
+%TODO
 %Zahvaljujem se vsem, ki so mi pomagali pri raziskovanju in pisanju.
 %Še posebej se zahvaljujem mentorju Alešu Volčiniju za podporo in potrpežljivost.
 %Pomagla sta mi tudi moja prijatelja Anton Luka Šijanec in Oliver Wagner pri iskanju mojih hroščev.
@@ -56,6 +57,7 @@ Mentor: & Aleš Volčini
 \pagebreak
 
 \section{Povzetek}
+%TODO
 %V tej raziskovalni nalogi sem hotel videti kako se RISC arhitekture obnašajo, ko jih porinemo do njihovih logičnih ekstremov.
 %Da sem ta
 \pagebreak
@@ -64,10 +66,11 @@ Mentor: & Aleš Volčini
 %\section{Abstract}
 
 \section{Uvod}
+%TODO
 V raziskovalni nalogi sem si zadal kot cilj izdelavo minimalistične arhitekture.
 
 \subsection{Hipoteze}
-
+V tej nalogi bom preveril resničnost sledečih hipotez:
 \begin{itemize}
   \item Bolj kot je arhitektura preprosta, hitreje in bolj učinkovito deluje.
   \item Moja lahkotna arhitektura je Turing complete.
@@ -79,17 +82,24 @@ V raziskovalni nalogi sem si zadal kot cilj izdelavo minimalistične arhitekture
   \includegraphics[width=.5\linewidth]{slike/arhitektura.gv.pdf}
   \captionof{figure}{Shematika moje arhitekture}
   \end{figure}
+
 \subsection{Kaj je URISC?}
 %URGENTLY religate interesting stuff to the compiler
 URISC je angleška kratica, ki pomeni \textit{ultimate reduced instruction set computer} oz.\ po slovensko \textit{računalnik z dokončno zmanjšano množico operacij}.
-Da arhitekturi lahko pripišemo ta naslov, ji je dovoljeno imeti samo 1 operacijo.
+RISC arhitekture so v praksi boljše od CISC arhitektur, to nam dokazujejo moderni pametni telefoni, saj skoraj vsi delujejo na arm čipih.
+To nam dokaže tudi naj popularnejši ustvarjalec CISC procesorjev, Intel, saj so njihovi CISC procesorji interno zgrajeni iz tolmača in manjšega RISC procesorja.
+Da arhitkturo označimo kot urisc, pa rabimo iti še en korak dajle, in sicer, se znebiti vsek ukazov razen enega.
+Zanimiva posedica tega je dejstvo, da lahko ko pišemo strojno kodo popolnoma spustimo polje z inštrukcijo, ostanejo le še njeni argumenti.
 
-Izkazalo se je da so RISC procesorji veliko boljši od procesorjev z kompleksno množico operacij, zato imajo tudi skoraj vsi telefoni danes arm procesorje.
+Jaz se m se raje odločil za 2 inštrukciji, ker se njuni rabi ne prekrivata zelo dosti, saj med drugim tudo operirata na različnih magnitudah količine podatkov, je posledica te adicije le lažje pisanje programov.
+Odločil sem se, da mi je to pomembno, ker na roke pišem posamezne ukaze, ali pa pišem makrote, ki se prevedejo v posamezne ukaze.
+
 \subsection{Inštrukcije}
-vsak ukaz dobi kot vhod 2 naslova (7 bitna na moji implementaciji) in 1 meta bit.
+Vsak ukaz dobi kot vhod 2 naslova (7 bitna na moji implementaciji) in 1 meta bit.
 \subsubsection{Nand ali xali}
-Kot prvo inštrukcijo sem najprej probal uporabiti xali, vendar sem hitro ugotovil, da se iz samo xora ne da rekonstuirati vseh ostalih vrat.
-Zato sem se odločil še za naj pogosteje izbrana univerzalna vrata nand.
+Kot prvo inštrukcijo sem najprej probal uporabiti XOR, vendar sem hitro ugotovil, da se iz samo XORa ne da rekonstuirati vseh ostalih vrat.
+Zato sem se odločil še za naj pogosteje izbrana univerzalna vrata NAND.\@
+NAND vrata mi niso pustila pogojnih skokov naprej, ker čim je eden izmed vhodov v NAND 0, bo rezultat gotovo 1, kar pomeni da je moj pogoj, zapisan v 2.\ argumentu bil ignoriran.
 Par vrat sem kombiniral v 1 inštrukcijo, kjer meta bit izbira med njima.
 V interesu krajših inštrukcij, sem spustil 3.\ naslov, na katerega bi se rezultat shranil. Na mesto tega, se vedno shrani na 2.\ naslov.
 
@@ -107,10 +117,11 @@ Oz.\ zapisano v logični notaciji.
 
 \subsubsection{16 bitno kopiranje}
 To inštrukcijo sem izbral zaradi izredno lažjih skokov, ki bi jih omogočala.
-Programski števec zavzame prvij 16 bitov, ta inštrukcija pa nam omogoča da v enem ciklu na njega skopiramo vseh 16 bitov, ki so potrebni za skok.
+Brez nje, bi rabil najti način da bi zaobšel takojšen skok, ki se zgodi, ko spreminjaš prvih 16 bitov oz.\ programski števec.
+Programski števec zavzame prvij 16 bitov, ta inštrukcija pa nam omogoča da v enem ciklu na njega skopiramo vseh 16 bitov, ki so absoluten potrebni za skok.
 Meta bit sem uporabil, sa možnost branja iz programskega spomina, kar nam olajša pisanje konstant, in hitre skoke na pogoste naslove.
 
-\subsection{Eno bitni registri}
+\subsection{Enobitni registri}
 %vsi registri so eneaki, samo eni so bol enaki
 Glede na dolžino naslova in programskega števca lahko zračunamo število registrov, ki jih je potrebno rezervirati.
 \begin{center}
@@ -119,8 +130,11 @@ Glede na dolžino naslova in programskega števca lahko zračunamo število regi
 \end{displaymath}
 \text{N je dolžina binarnega naslova, P je programski števec}
 \end{center}
-Pomembenje dodatek +P-1, saj lahko z copy ukazom skopiramo nekaj preko glavnega ram območja.
-Posledica tega je nekaj skritih registrov, ki bodo vrjetno uporabljeni kot nastavitve sistema.
+/footnote{Pomembenje dodatek +P-1, saj lahko z copy ukazom skopiramo nekaj preko glavnega ram območja.
+  Posledica tega je nekaj skritih registrov, ki bodo vrjetno uporabljeni kot nastavitve sistema.}
+Štiri registre takoj po programskem števcu sem rezerviral za komunikacijo.
+Kar na precej zanimiv način razlikuje mojo napravo od standardne Harwardske arhitekture.
+Namesto da bi kontrolna enota imela direkten nadzor preko I/Oja, ga ima namesto tega ram.
 
 \subsection{Komunikacija z resničnim svetom}
 Za standarden izhod in vhod, sem se odločil da bom implementiral svojo 4 žično komunikacijo.
@@ -137,10 +151,30 @@ Ta lahko asinhrono bere informacije po bitih, ker ne morem garantirati dovolj ra
   \text{primer pošiljanja enice od A do B in od B do A}
   %\label{tim:foobar}
 \end{center}
+Za pošiljanje informacij najprej počakaš da je $OUT_{A}$ dovoljen, torej 0.
+Nato lahko pišemo kar hočemo v $OUT$, dokler ne želimo vrednosti \textit{oddati}, kar naredimo s tem da napišemo enico na $OUT_{A}$.
 
-\section{Potek} %TODO
+Za prejemanje informacij je podoben postopek.
+Začnemo z Preverjanjem $IN_{A}$, kot da bi gledali nabiralnik, če nam je poštar kaj prinesel.
+Čim dobimo napisano enico, smemo interpretirati karkoli je v $IN$, kot podatke.
+Da dobimo naslednji znak, priklopimo pulldown upor na $IN_{A}$.
+To druga naprava zazna in čimprej spusti $IN_{A}$ na 0.
+
+
+\section{Izdelava} %TODO
+Za uspešno izdelavo sem se odločil da bom potreboval okolje, kjer lahko testiram ideje o spremembah arhitekture in mesto za testiranje mojih programov.
+Zato sem se lotil pisanja virtualnega stroja, ker pa je teško vedeti kdaj ti je uspelo, sem začel delati na assemblerju.
+Seveda je izdelava tega tudi težka, zato sem razvil še dissasembler, da preverim delovanje asemblerja.
+Izdelava le tega je bila nekoliko lažja,  vendar sem še zmeraj čez par dni našel večjo napako pri de šifriranju ukazov.
+
 \subsection{Zbirnik (assembler)}
-Ker sem pre len, da bi na roke pisal programe v binarni obliki, ki se ne poravna z šesnajstiškimi ciframi, sem se odločil za spis zbirnika za mojo arhitekturo.
+Assembler se sprehodi čez celotno datoteko in vsako vrsico klasificira, kot eno izmed 4 možnosti.
+1. Komentar,
+2. Surovi binarni podatki,
+3. Premik v programu,
+4. Inštrukcija v procesorju;,
+5. Naslov.
+Še preden pa se moj program sprehodi čez input, ga podam predprocesorju.
 \subsubsection{Preprocessor}
 Preprocessor skrbi za dodajanje večih datotek skupaj in dešifriranje macrotov ter definicij.
 Nasm je precej popularen assembler, ki mi dovoli, da zlahkoto pokljičem le njegov predprocesor.
@@ -156,9 +190,9 @@ Na moje veliko presenečenje na internetu še nisem našel vseh logičnih vrat �
 V namen avtomatiziranja postopka iskanja kombinacije nandov, ki bi recimo sešteli 2 enobitni številki, sem spisal program ki proba najti vsa možna dejanja na n celicah.
 za kater koli n, ki je večji od 2, je to postal ne zdržljivo dolg proces (predvidevam da bi trajalo nekaj tednov),  zato sem napisal tudi več nizno implementacijo v C-ju.
 
-\section{Virtualna implementacija}
-Da zares lahko pokažem delovanje naprave, moram nekako prikazati kako deluje, in to na najlažji način dosežem. %TODO
-\subsection{cellular automata}
+%\section{Virtualna implementacija}
+%$Da zares lahko pokažem delovanje naprave, moram nekako prikazati kako deluje, in to na najlažji način dosežem. %TODO
+%\subsection{cellular automata}
 \section{Zaključek}
 \subsection{Hipoteze}
 \begin{itemize}
@@ -177,11 +211,9 @@ Zdi se mi pomembno omeniti, da lahko med tem ko ohranimo preprostost dizajna moj
 
 \pagebreak
 \section{Viri in literatura}
+https://uops.info/
+https://cs.stanford.edu/people/eroberts/courses/soco/projects/risc/risccisc/
 
-\pagebreak
-\section{Viri slik}
-%\begin{enumerate}
-%  \item Slika 1:
-%\end{enumerate}
-
+%\pagebreak
+%\section{Viri slik}
 \end{document}
