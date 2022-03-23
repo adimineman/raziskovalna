@@ -48,19 +48,19 @@ Mentor: & Aleš Volčini
 
 \pagebreak
 
-\section{Zahvala}
-%TODO
-%Zahvaljujem se vsem, ki so mi pomagali pri raziskovanju in pisanju.
-%Še posebej se zahvaljujem mentorju Alešu Volčiniju za podporo in potrpežljivost.
-%Pomagla sta mi tudi moja prijatelja Anton Luka Šijanec in Oliver Wagner pri iskanju mojih hroščev.
-
-\pagebreak
-
-\section{Povzetek}
-%TODO
-%V tej raziskovalni nalogi sem hotel videti kako se RISC arhitekture obnašajo, ko jih porinemo do njihovih logičnih ekstremov.
-%Da sem ta
-\pagebreak
+%\section{Zahvala}
+%%TODO
+%%Zahvaljujem se vsem, ki so mi pomagali pri raziskovanju in pisanju.
+%%Še posebej se zahvaljujem mentorju Alešu Volčiniju za podporo in potrpežljivost.
+%%Pomagla sta mi tudi moja prijatelja Anton Luka Šijanec in Oliver Wagner pri iskanju mojih hroščev.
+%
+%\pagebreak
+%
+%\section{Povzetek}
+%%TODO
+%%V tej raziskovalni nalogi sem hotel videti kako se RISC arhitekture obnašajo, ko jih porinemo do njihovih logičnih ekstremov.
+%%Da sem ta
+%\pagebreak
 
 %%ANG ONLY DEU
 %\section{Abstract}
@@ -85,23 +85,55 @@ V tej nalogi bom preveril resničnost sledečih hipotez:
 
 \subsection{Kaj je URISC?}
 %URGENTLY religate interesting stuff to the compiler
-URISC je angleška kratica, ki pomeni \textit{ultimate reduced instruction set computer} oz.\ po slovensko \textit{računalnik z dokončno zmanjšano množico operacij}.
-RISC arhitekture so v praksi boljše od CISC arhitektur, to nam dokazujejo moderni pametni telefoni, saj skoraj vsi delujejo na arm čipih.
-To nam dokaže tudi naj popularnejši ustvarjalec CISC procesorjev, Intel, saj so njihovi CISC procesorji interno zgrajeni iz tolmača in manjšega RISC procesorja.
-Da arhitkturo označimo kot urisc, pa rabimo iti še en korak dajle, in sicer, se znebiti vsek ukazov razen enega.
-Zanimiva posedica tega je dejstvo, da lahko ko pišemo strojno kodo popolnoma spustimo polje z inštrukcijo, ostanejo le še njeni argumenti.
+URISC je angleška kratica, ki pomeni \textit{ultimate reduced instruction set computer}, kar bi lahko v slovenščino prevedli kot \textit{računalnik z dokončno zmanjšano množico operacij}.
+RISC arhitekture so v praksi, odkar pomnilnik ni več drag, boljše od CISC arhitektur, to nam dokazujejo moderni pametni telefoni, saj skoraj vsi delujejo na arm čipih.
+To nam dokaže tudi najpopularnejši ustvarjalec CISC procesorjev, Intel, saj so dandanes njihovi procesorji interno zgrajeni iz tolmača in manjšega RISC procesorja.
+Da arhitkturo označimo kot URISC, pa rabimo iti še en korak dajle, in sicer, se znebiti vsek ukazov razen enega.
+Zanimiva posedica tega je dejstvo, da lahko ko pišemo strojno kodo popolnoma spustimo polje z instructijo, ostanejo le še njeni argumenti.
 
-Jaz se m se raje odločil za 2 inštrukciji, ker se njuni rabi ne prekrivata zelo dosti, saj med drugim tudo operirata na različnih magnitudah količine podatkov, je posledica te adicije le lažje pisanje programov.
-Odločil sem se, da mi je to pomembno, ker na roke pišem posamezne ukaze, ali pa pišem makrote, ki se prevedejo v posamezne ukaze.
+Jaz sem se raje odločil za 2 instrukciji, ker se njuni rabi ne prekrivata zelo dosti, saj med drugim tudo operirata na različnih magnitudah količine podatkov, je posledica te adicije le lažje pisanje programov.
+Odločil sem se, da mi je težavnost pisanja programov brez prevajalnika pomembna, ker bi sicer ta naloga vzela še dosti več časa, če bi rabil napisati še prevajalnik.
 
-\subsection{Inštrukcije}
-Vsak ukaz dobi kot vhod 2 naslova (7 bitna na moji implementaciji) in 1 meta bit.
-\subsubsection{Nand ali xali}
-Kot prvo inštrukcijo sem najprej probal uporabiti XOR, vendar sem hitro ugotovil, da se iz samo XORa ne da rekonstuirati vseh ostalih vrat.
+\subsection{Instrukcije}
+Obe instrukciji prejmeta 2 naslova iz rama\footnote{naslov ni nujno povezan z ramom, glej copy instrukcijo} in en meta bit.
+V moji izvedbi sem se odločil za 7 bitne\footnote{Ta izbira je arbitrarna, arhitektura podpira n bitne naslove. Tega sem izbral ker je posledična dolžina ukaza v bitni kodi potenca števila 2.} ram naslove.
+Za pridobivanje bitnega zapisa preprosto napišemo 1.\ naslov, 2.\ naslov, cifro zeljene instrukcije in meta bit.
+Meta bit je nastal zaradi poravnave dolzine ukaza na 2 byta, kar je naredilo pisanje zbirnika in razbirnika nekoliko lažje.
+Obe instrukciji se obnasata po principu, da vzameta podatke iz 1.\ naslova in rezultat shranita na 2.\ naslov.
+
+\subsubsection{Instrukcija ``16c''}
+To je 1.\ instrukcija oznacena z 0 v binarni obliki.
+Njena notacija izhaja iz daljšega imena \textit{copy 16 bits}
+Deluje tako, da od njenega 1.\ podanega naslova in še zaporedno nasledjih 15 registrov prekopira v začasen pomnilnik, potem pa jih prekopira na 2.\ naslov in na zaporednih 15 registrov za njim.
+Odločitev da bo to 1.\ instrukcija izhaja iz tega, da so same ničle v programu interpretirane kot ukaz brez posledic, kar je uporabno predvsem, ko rabim kaj poravnati na naslov, ki je par mest nižji.
+Na začetku je bila zasnovana kot skoraj jump instrukcija, saj z nandom ni mogoče vseh bitov v programskem števcu hkrati spremeniti na željeno vrednost.
+Posledica spremembe enega pa po enega bita, bi bil skok takoj po 1.\ spremembi saj kontrolna enota vedno preveri števec pred nalaganjem nove instrukcije.
+
+Ko sem kasneje dodal še meta bit, sem se odločil da se bo kopiranje zgodilo iz programskega spomina.
+Zaradi tega je nalaganje konstant, kot so nizi ali pa naslovi funkcij postali zelo preprosti in hitri.
+Limitacija tega je, da sem uporabil 7 bitni naslov za pridobivanje podatkov iz pomnilnika opisanega z 16 biti.
+Zaradi tega večina pomnilnika še vedno ni na voljo, kot rešitev temu pa sem se odločil, da sem uporabil skrite registre kot nastavitev strani programskega pomnilnika.
+
+Skriti biti nastanejo kot stranski učinek slabe definicije zaporednih registrov.
+Kaj se zgodi če nekaj skopiramo na zadnji register?
+Zdi se mi da je najbolj uporaben odgovor, da rečem da so za ``zadnjim registrom'' še skriti registri.
+Do njihove vsebine se da dostopati le z c16 ukazom, kar se mi ne zdi problem, saj menim, da bo ta konfiguracija redko spremenjena čez potek programa.
+
+\subsubsection{Instrukcija ``Nox''}
+To je 2.\ instrukcija oznacena z 1 v binarni obliki.
+Ime izhaja iz njenega kratkega opisa: \textit{Nanad or Xor}.
+Najprej sem probal uporabiti le XOR, kot edini ukaz za minpulacijo bitov, vendar sem hitro ugotovil, da se iz samo XORa ne da rekonstuirati vseh ostalih logičnih vrat.
 Zato sem se odločil še za naj pogosteje izbrana univerzalna vrata NAND.\@
-NAND vrata mi niso pustila pogojnih skokov naprej, ker čim je eden izmed vhodov v NAND 0, bo rezultat gotovo 1, kar pomeni da je moj pogoj, zapisan v 2.\ argumentu bil ignoriran.
-Par vrat sem kombiniral v 1 inštrukcijo, kjer meta bit izbira med njima.
-V interesu krajših inštrukcij, sem spustil 3.\ naslov, na katerega bi se rezultat shranil. Na mesto tega, se vedno shrani na 2.\ naslov.
+
+Ta so s seboj privlekla nove probleme kot npr.\ pogojni skoki naprej so postali zelo dragi.
+Programski števec bi lahko bil viden samo c16 ukazu, vendar bi to preprečilo relativne skoke, kjer spremenim le 1 bit v njem.
+Pogojni relativni skoki so nadaljevanje tega. Ker vem kje se nahaja trenuten ukaz, lahko vem v kakšnem stanju je nek bit v programskem števcu.
+S kombiniranjem enice v programskem števcu in nekega podatka v ramu lahko skočim nazaj, samo če je tudi podatek v ramu enica.
+Pogojen skok naprej ni izvedljiv na tak način. Saj bo na enobitnem mesu, če ga želimo povečati morala biti ničla.
+Nand pravi, da če je kateri koli izmed argumentov 0, da bo rezultat vedno 1, kar pomeni da naš \textit{pogoj} ni bil upoštevan.
+
+Zaradi dragih skokov in lahke ponastavitve celice na 0, sem se odločil da dodam še XOR.\@
+Par vrat sem kombiniral v 1 instrukcijo, kjer meta bit izbira med njima.
 
 \begin{displaymath}
   f(A,B,M) =
@@ -115,31 +147,24 @@ Oz.\ zapisano v logični notaciji.
   \overline{(AB)}(A+B+\overline{C})
 \end{displaymath}
 
-\subsubsection{16 bitno kopiranje}
-To inštrukcijo sem izbral zaradi izredno lažjih skokov, ki bi jih omogočala.
-Brez nje, bi rabil najti način da bi zaobšel takojšen skok, ki se zgodi, ko spreminjaš prvih 16 bitov oz.\ programski števec.
-Programski števec zavzame prvij 16 bitov, ta inštrukcija pa nam omogoča da v enem ciklu na njega skopiramo vseh 16 bitov, ki so absoluten potrebni za skok.
-Meta bit sem uporabil, sa možnost branja iz programskega spomina, kar nam olajša pisanje konstant, in hitre skoke na pogoste naslove.
-
 \subsection{Enobitni registri}
 %vsi registri so eneaki, samo eni so bol enaki
-Glede na dolžino naslova in programskega števca lahko zračunamo število registrov, ki jih je potrebno rezervirati.
+Kot ram sem si zamislil \textit{trak} enobitnih registrov.
+Zaradi preprostosti, je programski števec preslikan čez prvih 16 registrov, da lahko tudi ukaz Nox z njem operira.
+Ves I/O je tudi preslikan na registre, in sicer na prve štirji za števcem.
+Število vseh registrov je funkcija dolžine naslova rama in velikosti programskega števca.
+Velikost programskega števca je potrebno upoštevati, saj je glede na njega definiran ukaz za kopiranje, in polsedica ukaza za kopirajne so skriti registri.
 \begin{center}
 \begin{displaymath}
   F(N,P)=2^{N}+P-1
 \end{displaymath}
 \text{N je dolžina binarnega naslova, P je programski števec}
 \end{center}
-/footnote{Pomembenje dodatek +P-1, saj lahko z copy ukazom skopiramo nekaj preko glavnega ram območja.
-  Posledica tega je nekaj skritih registrov, ki bodo vrjetno uporabljeni kot nastavitve sistema.}
-Štiri registre takoj po programskem števcu sem rezerviral za komunikacijo.
-Kar na precej zanimiv način razlikuje mojo napravo od standardne Harwardske arhitekture.
-Namesto da bi kontrolna enota imela direkten nadzor preko I/Oja, ga ima namesto tega ram.
 
 \subsection{Komunikacija z resničnim svetom}
 Za standarden izhod in vhod, sem se odločil da bom implementiral svojo 4 žično komunikacijo.
-Ta lahko asinhrono bere informacije po bitih, ker ne morem garantirati dovolj rama, da bi lahko avomatsko pisal na konec nekega stacka, interrupti pa bi tudi dodali ogromno kompleksnosti, saj bi rabil dodati 16 nedosegljivih registrov za callback in novo inštrukcijo, ki bi skočila na ta naslov.
-%TODO add graph.
+Ta lahko asinhrono bere informacije po bitih, ker ne morem garantirati dovolj rama, da bi lahko avomatsko pisal na konec nekega stacka, interrupti pa bi tudi dodali ogromno kompleksnosti, saj bi rabil dodati 16 nedosegljivih registrov za callback in novo instrukcijo, ki bi skočila na ta naslov.
+Lepa lastnost štirižičnega protokola je tudi, da se dve napravi z lahkoto skupaj poveže, saj moramo le izhode iz ene priklopti v vhode druge.
 \begin{center}
   \begin{tabular}{ccc}
     $A_{OUT}  $ & \texttiming{LHHHLLLLLL} & $B_{IN}$\\
@@ -172,7 +197,7 @@ Assembler se sprehodi čez celotno datoteko in vsako vrsico klasificira, kot eno
 1. Komentar,
 2. Surovi binarni podatki,
 3. Premik v programu,
-4. Inštrukcija v procesorju;,
+4. Instrukcija v procesorju;,
 5. Naslov.
 Še preden pa se moj program sprehodi čez input, ga podam predprocesorju.
 \subsubsection{Preprocessor}
@@ -211,8 +236,9 @@ Zdi se mi pomembno omeniti, da lahko med tem ko ohranimo preprostost dizajna moj
 
 \pagebreak
 \section{Viri in literatura}
-https://uops.info/
-https://cs.stanford.edu/people/eroberts/courses/soco/projects/risc/risccisc/
+$[1]$ dosegljivo: \url{https://uops.info/} [23.3.2022]\\
+$[2]$ dosegljivo: \url{https://cs.stanford.edu/people/eroberts/courses/soco/projects/risc/risccisc/} [23.3.2022]\\
+$[3]$ dosegljivo: \url{https://wpmedia.wolfram.com/uploads/sites/13/2018/02/15-1-1.pdf} [23.3.2022]\\
 
 %\pagebreak
 %\section{Viri slik}
