@@ -70,13 +70,11 @@ Ključne besede: RISC, URISC, arhitektura procesorja, Univerzalen procesor, navi
 
 % ANG ONLY DEU
 \section{Abstract}
-The aim of this research paper is to explore the practical limits of the RISC architecture, by creating a simple implementation and proving its Turing completeness.
-
-In order to achieve such a proof, i had to write an emulator.
-To avoid writing its program in binary, i had to write an assembler, and a dissasembler for debugging.
-For writing more complex operations\footnote{Such as addition, seek std.asm in the attachments} i wrote an instruction \textit{bruteforcer}.
-
-With this combination of tools i finally proved that my architecture can compute every Turing-computable function, given enough time and memory, by emulating a 1d cellular automaton denoted by rule 110 in the Wolfram notation.
+This research paper aims to explore the practical limits of the RISC architecture, by creating a simple implementation and proving its Turing completeness.
+In order to achieve such a proof, I had to write an emulator.
+To avoid writing its program in binary, I had to write an assembler and a disassembler for debugging.
+For writing more complex operations\footnote{Such as addition, seek std.asm in the attachments} I wrote an instruction \textit{bruteforcer}.
+With this combination of tools, I finally proved that my architecture can compute every Turing-computable function, given enough time and memory, by emulating a 1d cellular automaton denoted by rule 110 in the Wolfram notation.
 
 Keywords: RISC, URISC, computer architecture, universal computer, virtual machine, emulation
 
@@ -305,7 +303,7 @@ Potem za vsako vrstico v datoteki naredimo naslednje:
   \end{itemize}
 \end{itemize}
 
-\subsection{Razbirnik (Dissasembler)}
+\subsection{Razbirnik (Disassembler)}
 Glej prilogo \textit{disasm.py}.
 
 
