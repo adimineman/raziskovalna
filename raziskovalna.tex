@@ -39,7 +39,6 @@
 \end{titlepage}
 
 \pagebreak
-\pagenumbering{arabic}
 
 \tableofcontents
 
@@ -54,7 +53,10 @@ Zahvaljujem se vsem, ki so mi pomagali pri raziskovanju in pisanju.
 Še posebej se zahvaljujem mentorju Alešu Volčiniju za podporo in potrpežljivost.
 Zahvalil bi se tudi mojima prijateljema Oliverju Wagnerju (\url{oliwerix.com}) in Antonu L. Šijancu (\url{sijanec.eu}), ki sta s svojimi implementacijami emulatorja MUHI popestrila moje delo.
 
+\pagenumbering{arabic}
+
 \pagebreak
+
 
 \section{Povzetek}
 V raziskovalni nalogi sem si zamislil novo RISC arhitekturo, imenovano MUHI (\textit{Minimal URISC hardware implementation}).
@@ -65,8 +67,6 @@ Kot pomoč pri iskanju sestavljenih operacij sem napisal še program za iskanje 
 Implementacija je Turing-kompletna, kar sem dokazal tako, da sem napisal celični avtomat, ki izvaja pravilo 110.
 
 Ključne besede: RISC, URISC, arhitektura procesorja, Univerzalen procesor, navidezna naprava, emulacija
-
-\pagebreak
 
 % ANG ONLY DEU
 \section{Abstract}
@@ -129,7 +129,7 @@ O organizaciji pomnilnika bom več povedal kasneje.
 Strojna koda ukaza je sestavljena iz 1.\ naslova, 2.\ naslova, operacijske kode instrukcije in t. i. meta bita.
 
 \begin{center}
-  \includegraphics[width=.3\linewidth]{slike/zločinski_posnetek_zaslona.png}
+  \includegraphics[width=.5\linewidth]{slike/instrukcija.pdf}
   \captionof{figure}{Prikaz sestave strojne kode}
 \end{center}
 
@@ -281,7 +281,7 @@ Virtualni stroj, zbirnik in razbirnik sem napisal v programskem jeziku python.
 Glej prilogo \textit{asm.py}.
 
 \begin{center}
-  \includegraphics[width=.3\linewidth]{slike/razbirnik.png}
+  \includegraphics[width=.4\linewidth]{slike/razbirnik.png}
   \captionof{figure}{Grafični prikaz nox instrukcije}
 \end{center}
 
@@ -308,20 +308,17 @@ Potem za vsako vrstico v datoteki naredimo naslednje:
 \subsection{Razbirnik (Dissasembler)}
 Glej prilogo \textit{disasm.py}.
 
+
 \begin{center}
-  \includegraphics[width=.3\linewidth]{slike/razbirnik.png}
+  \includegraphics[width=.4\linewidth]{slike/razbirnik.png}
   \captionof{figure}{Primer uporabe razbirnika}
 \end{center}
+\hfill
 Med izdelavo delujočega zbirnika sem naletel na nekaj problemov, zato sem z malo pomoči soseda Oliverja napisal še manjši program, ki se sprehodi čez datoteko in jo interpretira v instrukcije in njene argumente.
 Izpiše nam naslov, na katerem se ukaz nahaja, ukaz sam, meta bit in še šestnajstiški prikaz tega ukaza, saj ne loči med podatki in ukazi.
 
 \subsection{Iskanje ukazov s surovo silo}
 Glej prilogo \textit{gate-bf}.
-
-\begin{center}
-  \includegraphics[width=.3\linewidth]{slike/predstavitev/gate-bf.png}
-  \captionof{figure}{Prikaz tabele z vsemi možnimi rezultati}
-\end{center}
 
 Pisanje makrov, kot so \texttt{add} je za človeka zaradi nepreglednosti težko opravilo.
 Seveda se da poiskati kombinacijo NAND-ov in XOR-ov, ki bi mi vrnila seštevek dveh številk, vendar ne morem biti prepričan, da sem res našel najkrajši način za to.
@@ -333,6 +330,11 @@ Tako lahko generiramo tabelo rezultatov glede na vse možne vhode.
 
 Prva implementacija tega programa je bila napisana v pythonu in bi po mojih ocenah trajalo nekaj tednov, da bi z njo dobil popolno tabelo vseh možnih rezultatov.
 Zato sem prepisal cel program v C in z uporabo več niti hkrati skrajšal čas iskanja na 3 sekunde.
+
+\begin{center}
+  \includegraphics[width=.6\linewidth]{slike/predstavitev/gate-bf.png}
+  \captionof{figure}{Prikaz tabele dela z vsemi možnimi rezultati}
+\end{center}
 
 \section{Virtualna implementacija}
 Glej prilogo \textit{main.py}.
@@ -347,14 +349,15 @@ To lahko najlažje vidimo pri primeru št. 1 (priloga), kjer naprava izpiše ``Z
 
 \subsection{Celični avtomat}
 
-\begin{center}
-  \includegraphics[width=.3\linewidth]{slike/predstavitev/pravilo 110.png}
+\begin{minipage}{.5\linewidth}
+  \includegraphics[width=\linewidth]{slike/predstavitev/pravilo 110.png}
   \captionof{figure}{Pravilo 110}
-\end{center}
-\begin{center}
-  \includegraphics[width=.3\linewidth]{slike/pravilo110.png}
+\end{minipage}
+\hfill
+\begin{minipage}{.5\linewidth}
+  \includegraphics[width=.8\linewidth]{slike/pravilo110.png}
   \captionof{figure}{Prikaz delovanja celičnega avtomata na MUHI arhitekturi.}
-\end{center}
+\end{minipage}
 Za dokazovanje, da je arhitektura MUHI turing-kompletna, sem izbral emulacijo drugega turing-kompletnega sistema.
 Eden izmed najbolj preprostih, čeprav še vedno dovolj kompleksnih, da je univerzalen, je Celični avtomat s pravilom 110. [$3$]
 Seveda ne morem implementirati neskončno dolgega enodimenzionalnega traka, na katerem bi simuliral izvajanje tega pravila, lahko pa pokažem, da bi se to dalo implementirati, če bi moja naprava imela neskončno rama.
