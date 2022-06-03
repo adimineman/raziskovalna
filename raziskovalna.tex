@@ -1,7 +1,7 @@
 \documentclass[12pt]{article}
 
 \usepackage[slovene]{babel}
-\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage[a4paper,top=1in, bottom=1in, left=1in, right=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage[unicode]{hyperref}
@@ -53,7 +53,6 @@ Zahvaljujem se vsem, ki so mi pomagali pri raziskovanju in pisanju.
 Še posebej se zahvaljujem mentorju Alešu Volčiniju za podporo in potrpežljivost.
 Zahvalil bi se tudi mojima prijateljema Oliverju Wagnerju (\url{oliwerix.com}) in Antonu L. Šijancu (\url{sijanec.eu}), ki sta s svojimi implementacijami emulatorja MUHI popestrila moje delo.
 
-\pagenumbering{arabic}
 
 \pagebreak
 
@@ -63,7 +62,7 @@ V raziskovalni nalogi sem si zamislil novo RISC arhitekturo, imenovano MUHI (\te
 MUHI je enobitna, dvo-instrukcijska arhitektura.
 Za njeno implementacijo sem raziskoval področje teorije izračunljivosti in arhitekture ostalih procesorjev.
 Za testiranje delovanja sem sprogramiral emulator, za lažje pisanje programov pa sem pripravil tudi zbirnik in razbirnik.
-Kot pomoč pri iskanju sestavljenih operacij sem napisal še program za iskanje kombinacij ukazov.
+Kot pomoč pri iskanju sestavljenih operacij sem napisal tudi program za iskanje kombinacij ukazov.
 Implementacija je Turing-kompletna, kar sem dokazal tako, da sem napisal celični avtomat, ki izvaja pravilo 110.
 
 Ključne besede: RISC, URISC, arhitektura procesorja, Univerzalen procesor, navidezna naprava, emulacija
@@ -71,19 +70,22 @@ Ključne besede: RISC, URISC, arhitektura procesorja, Univerzalen procesor, navi
 % ANG ONLY DEU
 \section{Abstract}
 This research paper aims to explore the practical limits of the RISC architecture, by creating a simple implementation and proving its Turing completeness.
-In order to achieve such a proof, I had to write an emulator.
-To avoid writing its program in binary, I had to write an assembler and a disassembler for debugging.
-For writing more complex operations\footnote{Such as addition, seek std.asm in the attachments} I wrote an instruction \textit{bruteforcer}.
-With this combination of tools, I finally proved that my architecture can compute every Turing-computable function, given enough time and memory, by emulating a 1d cellular automaton denoted by rule 110 in the Wolfram notation.
+In the first section, the document explains in depth the inner workings of my architecture.
+After that, the paper describes an emulator, an assembler, and a disassembler.
+In addition, this document touches on the topic of bruteforcing instructions for purposes of optimization.
+Finally, the proof of universality is covered.
 
 Keywords: RISC, URISC, computer architecture, universal computer, virtual machine, emulation
 
 \pagebreak
+\pagenumbering{arabic}
+\setcounter{page}{6}
 
 \section{Uvod}
-Procesorji so najpomembnejša komponenta v moderni zgradbi računalnika, kljub njihovi pomembnosti pa jih ljudje dandanes čedalje slabše razumejo.
+Procesorji so najpomembnejša komponenta v moderni zgradbi računalnika.
+Kljub njihovi pomembnosti pa jih ljudje dandanes čedalje slabše razumejo.
 Oblikovanje procesorjev smo prepustili relativno majhnim skupinam razvijalcev, z nizkonivojskimi jeziki pa se le še malokdo ukvarja.
-To me čudi, saj vse od kar sem slišal za Intelov \textit{management engine} ne morem nehati razmišljati o mojem procesorju.
+To me preseneča, saj vse od kar sem slišal za Intelov \textit{management engine} ne morem nehati razmišljati o mojem procesorju.
 Spraševati sem se začel, kako lahko zares preverim, da management engine ni aktiven v mojem računalniku in ali lahko sploh zaupam svojemu procesorju.
 To me je nekako pripeljalo do ideje, da naredim svoj procesor.
 Tako sem si zamislil MUHI arhitekturo.
@@ -104,22 +106,23 @@ Imenuje se \textit{Minimal URISC hardware implementation} oz.\ kratica MUHI.\@
 \subsection{Kaj je URISC?}
 % URGENTLY religate interesting stuff to the compiler
 Kratica URISC pomeni \textit{ultimate reduced instruction set computer}, kar bi lahko v slovenščino prevedli kot \textit{računalnik z minimalno množico operacij}.
-RISC arhitekture so v moderni praksi, boljše od CISC arhitektur, vsaj odkar pomnilnik ni več drag.
+RISC arhitekture so v moderni praksi boljše od CISC arhitektur, vsaj odkar pomnilnik ni več drag.
 To nam dokazujejo moderni pametni telefoni, saj skoraj vsi delujejo na procesorjih vrste ARM.
-To nam dokaže tudi najpopularnejši ustvarjalec CISC procesorjev, Intel, saj so dandanes njihovi procesorji interno zgrajeni iz tolmača in manjšega RISC procesorja.
-Da arhitekturo označimo kot URISC, pa moramo iti še korak dlje in se znebiti vsek ukazov razen enega.
+Pa tudi ameriško tehnološko podjetje Intel, ki je najbolj priljubljen ustvarjalec CISC procesorjev.
+Danes so njihovi procesorji interno zgrajeni iz tolmača in manjšega RISC procesorja.
+A da arhitekturo označimo kot URISC, moramo narediti še korak naprej in se znebiti vseh ukazov razen enega.
 Zanimiva posledica tega je dejstvo, da lahko, ko pišemo strojno kodo, popolnoma spustimo polje z instrukcijo.
 Tako ostanejo le še njeni argumenti.
 
 V virih najdemo primere ukazov, ki so sami po sebi Turing-kompletni, npr.\ x86 mov ukaz\footnote{Stephen Dolan, mov is Turing-complete}.
-Jaz sem se raje odločil za 2 instrukciji, ker se njuni rabi ne prekrivata zelo dosti, saj med drugim tudo operirata na različnih magnitudah količine podatkov.
+Sam sem se raje odločil za dve instrukciji, ker se njuni rabi ne prekrivata zelo pogosto, saj med drugim tudi operirata na različnih magnitudah količine podatkov.
 Posledica dodatne instrukcije je lažje pisanje programov.
 % Odločil sem se, da mi je težavnost pisanja programov brez prevajalnika pomembna, ker bi sicer ta naloga vzela še dosti več
 Ker bi bilo opisovanje programiranja MUHI preveč obsežno, sem se odločil, da se bom v tej nalogi posvetil arhitekturi sami.
 
 \subsection{Instrukcije}
 %Obe instrukciji prejmeta 2 naslova iz rama\footnote{naslov ni nujno povezan z ramom, glej \textit{c16} instrukcijo} in en meta bit.
-Obe instrukciji imata 3 argumente.
+Obe instrukciji imata tri argumente.
 Prva dva argumenta sta registra, tretji pa je meta bit.
 V moji izvedbi sem se odločil za 7-bitne\footnote{Ta izbira je arbitrarna, arhitektura podpira $n$ bitne naslove. 7-bitne sem izbral, ker je posledično dolžina ukaza v bitih strojne kode potenca števila 2.} pomnilniške naslove.
 O organizaciji pomnilnika bom več povedal kasneje.
@@ -131,7 +134,7 @@ Strojna koda ukaza je sestavljena iz 1.\ naslova, 2.\ naslova, operacijske kode 
   \captionof{figure}{Prikaz sestave strojne kode}
 \end{center}
 
-Meta bit je ostal zaradi poravnave dolžine ukaza na 2 bajta, s čimer je naredilo pisanje zbirnika in razbirnika nekoliko lažje.
+Meta bit je ostal zaradi poravnave dolžine ukaza na 2 bajta, kar je naredilo pisanje zbirnika in razbirnika precej lažje.
 Obe instrukciji se obnašata tako, da vzameta podatke iz 1.\ in 2.\ naslova ter rezultat shranita nazaj na 2.\ naslov.
 \pagebreak
 \subsubsection{Instrukcija ``c16''}
@@ -142,11 +145,11 @@ Obe instrukciji se obnašata tako, da vzameta podatke iz 1.\ in 2.\ naslova ter 
 \end{center}
 
 To je 1.\ instrukcija, njena operacijska koda je $0$.
-Njena notacija izhaja iz daljšega imena \textit{copy 16 bits}
+Notacija 1. instrukcije izhaja iz daljšega imena \textit{copy 16 bits}
 Deluje tako, da od 1.\ podanega naslova 16 zaporednih registrov (\textit{oz.\ bitov}) prekopira v začasen pomnilnik, potem pa jih prekopira na 2.\ naslov.
-Odločitev, da bo to 1.\ instrukcija, izhaja iz tega, da so same ničle v programu interpretirane kot ukaz brez posledic, kar je uporabno predvsem takrat, ko je potrebno z ničlami rabimo kaj poravnati na naslov, ki je nekaj mest nižje.
+Odločitev, da bo to 1.\ instrukcija, izhaja iz tega, da so same ničle v programu interpretirane kot ukaz brez posledic, kar je uporabno predvsem takrat, ko je treba z ničlami kaj poravnati na naslov, ki je nekaj mest nižje.
 Na začetku je bila zasnovana skoraj kot jump instrukcija, saj z NANDom ni mogoče vseh bitov v programskem števcu hkrati spremeniti na željeno vrednost.
-Posledica spremembe enega pa po enega bita v programskem števcu, bi bil skok takoj po 1.\ spremembi enega bita, saj kontrolna enota vedno preveri števec pred nalaganjem nove instrukcije.
+Posledica spremembe enega pa po enega bita v programskem števcu, bi bil takojšen skok po 1.\ spremembi enega bita, saj kontrolna enota vedno preveri števec pred nalaganjem nove instrukcije.
 
 Ko sem kasneje dodal še meta bit, sem se odločil, da se bo kopiranje ob nastavljenem meta bitu zgodilo iz programskega spomina.
 S tem je nalaganje konstant, kot so nizi ali pa naslovi funkcij, postalo zelo preprosto in hitro.
@@ -179,10 +182,10 @@ Ker je instrukcija c16 edina instrukcija, ki je edina sposobna nastaviti program
 To je 2.\ instrukcija, njena operacijska koda je $1$.
 Ime izhaja iz njenega kratkega opisa: \textit{NAND or XOR}.
 Najprej sem poizkusil kot edini ukaz za manipulacijo bitov uporabiti le XOR.\
-Vendar sem hitro ugotovil, da se samo z njo ne da rekonstuirati vseh ostalih logičnih vrat.
+Vendar sem hitro ugotovil, da se samo z uporabo le XOR-a ne da rekonstuirati vseh ostalih logičnih vrat.
 Zato sem se odločil še za najpogosteje izbrana univerzalna vrata NAND.\@
 
-Ta so s seboj privlekla nove probleme; npr.\ pogojni skoki naprej so postali zelo dragi.
+Ta so s seboj privlekla nove težave; npr.\ pogojni skoki naprej so postali zelo dragi.
 Programski števec bi sicer lahko bil viden samo instrukciji c16, vendar bi to preprečilo optimizacijo relativnih skokov na naslove, ki se od trenutnega razlikujejo v enem samem bitu (torej je odmik potenca števila 2).
 Pogojni relativni skoki so razširitev zgornje ideje.
 Ker vem, kje se nahaja trenuten ukaz, tudi vem, v kakšnem stanju je vsak bit programskega števca.
@@ -234,10 +237,10 @@ $F(N,P)$, v mojem primeru $F(7,16)$, izračuna število registrov, ki jih imam n
 
 \subsection{Programski pomnilnik}
 Programski pomnilnik je organiziran v šestnajst-bitne besede.
-Njegova velikost znaša 65536 besed oz. 131072 bytov.
+Njegova velikost znaša 65536 besed oz. 131072 bajtov.
 Vsebuje lahko instrukcije ali konstante.
-Programski števec vsebuje naslov instrukcije, ki se bo ob naslednjem ciklu izvedla.
-Edini način za branje iz njega je z c16 instrukcijo, za pisanje vanj pa trenutno še ni mehanizma.
+Programski števec vsebuje naslov instrukcije, ki se bo izvedla ob naslednjem ciklu.
+Edini način za branje iz njega je s c16 instrukcijo, za pisanje vanj pa trenutno še ni mehanizma.
 
 
 \subsection{Komunikacija z zunanjim svetom}
@@ -245,8 +248,8 @@ Za izvedbo vhodno-izhodnih operacij se odločil, da bom implementirati svojo 4-�
 Ta lahko asinhrono prenaša informacije bit za bitom.
 Asinhronost je pomembna lastnost, saj arhitektura nima prostora za začasen pomnilnik, ki bi shranjeval podatke za čas, ko bi se program lahko začel z njimi ukvarjati.
 
-Po drugi strani bi prekinitve (interrupts) dodale ogromno kompleksnosti, kot npr.\ najmanj 16 dodatnih registrov, instrukcijo za branje z njih, možnost spreminjanja registrov, ki ni posledica nekega ukaza itd.
-Lepa lastnost štirižičnega protokola je tudi, da se dve napravi z lahkoto skupaj poveže, saj moramo le izhode iz ene priklopti v vhode druge.
+Po drugi strani bi prekinitve (\textit{interrupts}) dodale ogromno kompleksnosti, kot npr.\ najmanj 16 dodatnih registrov, instrukcijo za branje z njih, možnost spreminjanja registrov, ki ni posledica nekega ukaza itd.
+Lepa lastnost štirižičnega protokola je tudi v tem, da se lahko dve napravi z lahkoto poveže skupaj, saj moramo le izhode iz ene priklopiti v vhode druge.
 \begin{center}
   \begin{tabular}{ccc}
     $A_{OUT}  $ & \texttiming{LHHHLLLLLL} & $B_{IN}$\\
@@ -258,21 +261,21 @@ Lepa lastnost štirižičnega protokola je tudi, da se dve napravi z lahkoto sku
   \text{Primer pošiljanja enice od A do B in od B do A}
 \end{center}
 Za pošiljanje informacij najprej počakamo, da je $OUT_{A}$ dovoljen, torej 0.
-Nato lahko pišemo, kar hočemo, v $OUT$, dokler ne želimo vrednosti \textit{oddati}, kar naredimo s tako, da napišemo enico na $OUT_{A}$.
+Nato lahko pišemo kar hočemo v $OUT$, dokler ne želimo vrednosti \textit{oddati}, kar naredimo tako, da napišemo enico na $OUT_{A}$.
 
 Za prejemanje informacij je postopek podoben.
 Začnemo s preverjanjem $IN_{A}$, kot da bi gledali nabiralnik, če nam je poštar kaj prinesel.
-Čim dobimo napisano enico, smemo interpretirati karkoli je trenutno v $IN$, kot podatke.
+Čim dobimo napisano enico, smemo interpretirati karkoli je trenutno v $IN$ kot podatke.
 Da dobimo naslednji znak, priklopimo pulldown upor na $IN_{A}$.
 To druga naprava zazna in čim prej spusti $IN_{A}$ na 0.
 
 
 \section{Izdelava}
-Najprej sem se odločil da bom potreboval okolje, kjer bi lahko testiral arhitekturo, spremembe in moje programe.
-Zato sem se lotil pisanja virtualnega stroja.
+Najprej sem se odločil, da bom potreboval okolje, kjer bi lahko testiral arhitekturo, spremembe in svoje programe.
+Lotil sem se pisanja virtualnega stroja.
 Ker je brez preizkusov težko vedeti, ali stroj pravilno deluje, sem začel delo na zbirniku, da mi ne bi bilo več treba na roke pisati enic in ničel.
-Seveda je izdelava zbirnika tudi težka, zato sem razvil še razbirnik, s katerim preverim delovanje zbirnika.
-Izdelava le tega je bila nekoliko lažja, kljub temu pa sem našel večjo napako pri dekodiranju ukazov šele po nekaj dneh.
+Seveda je izdelava zbirnika tudi zahtevna, zato sem razvil še razbirnik, s katerim preverim delovanje zbirnika.
+Izdelava slednjega je bila nekoliko lažja, kljub temu pa sem našel večjo napako pri dekodiranju ukazov šele po nekaj dneh.
 
 Virtualni stroj, zbirnik in razbirnik sem napisal v programskem jeziku python.
 \subsection{Zbirnik (assembler)}
@@ -292,14 +295,14 @@ Potem za vsako vrstico v datoteki naredimo naslednje:
   \item preiščemo vrstico za par ``$<py>$'' simbolov, ki tvorita python blok.
   Vsaka uporabnikova konstanta je tako ali tako interpretirana kot izraz v pythonu, vendar nastane problem, ko želimo interpretirati izraze, ki vsebujejo vejice.
   Vejice so namreč ločilo med polji, zato moj preprost program nareže en pythonov izraz na več majhnih delov, ki sami po sebi niso več veljavni.
-  \item Na koncu vse py bloke zamenjamo z njigovimi izračunanimi vrednostmi v vrstici.
+  \item Na koncu vse py bloke zamenjamo z njihovimi izračunanimi vrednostmi v vrstici.
   \item Nato klasificiramo vsako vrstico v eno izmed petih možnih vrst.
   \begin{itemize}
-    \item Komentar ali prazna vrstica, ki jo lahko varno spustimo,
-    \item Surovi binarni podatki, ki jih direktno zapišemo v datoteko,
-    \item Premik v programu: premaknemo mesto pisanja in nadaljujemo,
-    \item Instrukcija v procesorju, ki jo dekodiramo, izračunamo njene argumente in zapišemo,
-    \item Naslov, katerega pozicijo si zapomnimo, da bomo kasneje lahko omenjali predmet pred katerim stoji.
+    \item komentar ali prazna vrstica, ki jo lahko varno spustimo,
+    \item surovi binarni podatki, ki jih direktno zapišemo v datoteko,
+    \item premik v programu: premaknemo mesto pisanja in nadaljujemo,
+    \item instrukcija v procesorju, ki jo dekodiramo, izračunamo njene argumente in zapišemo,
+    \item naslov, katerega pozicijo si zapomnimo, da bomo kasneje lahko omenjili predmet pred katerim stoji.
   \end{itemize}
 \end{itemize}
 
@@ -312,7 +315,7 @@ Glej prilogo \textit{disasm.py}.
   \captionof{figure}{Primer uporabe razbirnika}
 \end{center}
 \hfill
-Med izdelavo delujočega zbirnika sem naletel na nekaj problemov, zato sem z malo pomoči soseda Oliverja napisal še manjši program, ki se sprehodi čez datoteko in jo interpretira v instrukcije in njene argumente.
+Med izdelavo delujočega zbirnika sem naletel na nekaj težav, zato sem z malo pomoči soseda Oliverja napisal še manjši program, ki se sprehodi čez datoteko in jo interpretira v instrukcije in njene argumente.
 Izpiše nam naslov, na katerem se ukaz nahaja, ukaz sam, meta bit in še šestnajstiški prikaz tega ukaza, saj ne loči med podatki in ukazi.
 
 \subsection{Iskanje ukazov s surovo silo}
@@ -327,7 +330,7 @@ Ko dobimo kaj novega, lahko preprosto ponovimo postopek.
 Tako lahko generiramo tabelo rezultatov glede na vse možne vhode.
 
 Prva implementacija tega programa je bila napisana v pythonu in bi po mojih ocenah trajalo nekaj tednov, da bi z njo dobil popolno tabelo vseh možnih rezultatov.
-Zato sem prepisal cel program v C in z uporabo več niti hkrati skrajšal čas iskanja na 3 sekunde.
+Zato sem prepisal cel program v C in z uporabo več niti hkrati skrajšal čas iskanja na tri sekunde.
 
 \begin{center}
   \includegraphics[width=.6\linewidth]{slike/predstavitev/gate-bf.png}
@@ -363,8 +366,8 @@ Seveda ne morem implementirati neskončno dolgega enodimenzionalnega traka, na k
 \section{Zaključek}
 \subsection{Hipoteza}
 \begin{itemize}
-  \item Moja lahkotna arhitektura imenovana MUHI je Turing complete.
-  Hipoteza potrjena, saj lahko popolnoma emulira sistem, za katerega je že bilo dokazano, da je turing-kompleten.
+  \item Moja lahkotna arhitektura imenovana MUHI je Turing-kompletna.
+  Hipoteza je potrjena, saj lahko MUHI popolnoma emulira sistem, za katerega je že bilo dokazano, da je Turing-kompleten.
 \end{itemize}
 
 \pagebreak
